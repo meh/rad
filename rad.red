@@ -10,4 +10,6 @@ rad: context [
 	]
 ]
 
-print rad/file/slurp %rad.red
+do [
+	print rad/file/slurp "rad.red"
+]

@@ -2,32 +2,36 @@ Red [
 	Title: "File utility functions"
 ]
 
-#system [#include %file.reds]
+#system [
+	file: context [
+		#include %file.reds
+	]
+]
 
 slurp: routine [
 	path [string!]
 
 	/local
 		buffer  [byte-ptr!]
-		file    [integer!]
+		fd      [integer!]
 		size    [integer!]
 		content
 ] [
-	file: open (as [c-string!] (string/rs-head path))
+	fd: file/open (as [c-string!] (string/rs-head path))
 
-	either file = -1 [
+	if fd < 0 [
 		RETURN_NONE
-	] [
-		size: size? file
-
-		buffer: allocate size + 1
-		read file buffer size
-		close file
-
-		buffer/size: null-byte
-		content: string/load as-c-string buffer (size + 1)
-		free buffer
-
-		SET_RETURN(content)
 	]
+
+	size: file/size? fd
+
+	buffer: allocate size + 1
+	file/read fd buffer size
+	file/close file
+
+	buffer/size: null-byte
+	content: string/load as-c-string buffer (size + 1)
+	free buffer
+
+	SET_RETURN (content)
 ]
